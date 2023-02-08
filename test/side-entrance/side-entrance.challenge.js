@@ -14,18 +14,27 @@ describe('[Challenge] Side entrance', function () {
         [deployer, player] = await ethers.getSigners();
 
         // Deploy pool and fund it
-        pool = await (await ethers.getContractFactory('SideEntranceLenderPool', deployer)).deploy();
+        pool = await (
+            await ethers.getContractFactory('SideEntranceLenderPool', deployer)
+        ).deploy();
         await pool.deposit({ value: ETHER_IN_POOL });
-        expect(await ethers.provider.getBalance(pool.address)).to.equal(ETHER_IN_POOL);
+        expect(await ethers.provider.getBalance(pool.address)).to.equal(
+            ETHER_IN_POOL
+        );
 
         // Player starts with limited ETH in balance
         await setBalance(player.address, PLAYER_INITIAL_ETH_BALANCE);
-        expect(await ethers.provider.getBalance(player.address)).to.eq(PLAYER_INITIAL_ETH_BALANCE);
-
+        expect(await ethers.provider.getBalance(player.address)).to.eq(
+            PLAYER_INITIAL_ETH_BALANCE
+        );
     });
 
     it('Execution', async function () {
         /** CODE YOUR SOLUTION HERE */
+        let exploiter = await (
+            await ethers.getContractFactory('SideEntranceExploiter', deployer)
+        ).deploy();
+        await exploiter.callSideEntrance(pool.address, player.address);
     });
 
     after(async function () {
@@ -33,6 +42,8 @@ describe('[Challenge] Side entrance', function () {
 
         // Player took all ETH from the pool
         expect(await ethers.provider.getBalance(pool.address)).to.be.equal(0);
-        expect(await ethers.provider.getBalance(player.address)).to.be.gt(ETHER_IN_POOL);
+        expect(await ethers.provider.getBalance(player.address)).to.be.gt(
+            ETHER_IN_POOL
+        );
     });
 });
